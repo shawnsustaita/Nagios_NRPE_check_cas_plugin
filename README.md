@@ -19,5 +19,7 @@ $mech->form_with_fields('username', 'password');
 
 # Examples
 check_cas --help
+
 check_cas --login https://example.com/cas/login --username neo --password TheOne
+
 check_cas --login https://$HOSTADDRESS$/cas/login --username neo --password TheOne
