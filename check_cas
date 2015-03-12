@@ -28,6 +28,7 @@ use strict;
 use warnings;
 use Getopt::Long;
 use WWW::Mechanize;  # Web bot
+use version; our $VERSION = qv('0.9.0');
 
 ### Globals
 my $mech;
