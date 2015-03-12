@@ -33,7 +33,6 @@ use WWW::Mechanize;  # Web bot
 my $mech;
 my $response;
 my $login;
-my $logout;
 my $username;
 my $password;
 my $help;
@@ -45,7 +44,6 @@ my %errors=(OK       => 0,
 ### Prototypes
 sub main;
 sub login;
-sub logout;
 sub usage;
 
 ### Main
@@ -56,7 +54,6 @@ sub main {
     # Grab required options.
     my $ret = GetOptions('help'       => \$help,
                          'login=s'    => \$login,
-                         'logout=s'   => \$logout,
                          'username=s' => \$username,
                          'password=s' => \$password,);
 
@@ -64,17 +61,15 @@ sub main {
     usage() if !$ret;
     usage() if  $help;
     usage() if !$login;
-    usage() if !$logout;
     usage() if !$username;
     usage() if !$password;
 
     # Attempt a login.
     login();
     
-    # If login successful, logout and exit success.
+    # If login successful, report success.
     if ($mech->content() =~ /Log In Successful/i) {
         print "Authentication OK\n";
-        logout();  # logout does not error check.
         exit $errors{OK};
     }
 
@@ -91,26 +86,24 @@ sub login {
                                 timeout   => 30,);
     $mech->get($login);
     if (!$mech->success) {
-        print "Fetch login page failed\n";
+        print "Get failed\n";
         exit $errors{CRITICAL};
     }
     
     # Fillout form with credentials and submit.
     # The form and form fields may vary based on CAS implementation.
     # Modify accordingly.
-    $mech->form_id('fm1');
+    if (!$mech->form_with_fields('username', 'password')) {
+        print "Form failed\n";
+        exit $errors{UNKNOWN};
+    }
     $mech->field('username', $username);
     $mech->field('password', $password);
     $mech->submit_form();
     if (!$mech->success) {
-        print "Submit form failed\n";
+        print "Post failed\n";
         exit $errors{CRITICAL};
     }
-}
-
-sub logout {
-    # Attempt a logout without error checking.
-    $mech->get($logout);
 }
 
 sub usage {
@@ -118,12 +111,11 @@ sub usage {
     print "usage: $0 <required options>\n\n",
           "required options:\n",
           "    --login    <login url>\n",
-          "    --logout   <login url>\n",
           "    --username <username>\n",
           "    --password <password>\n\n",
           "examples:\n",
-          "    check_cas --login https://example.com/cas/login --logout https://example.com/cas/logout --username neo --password TheOne\n",
-          "    check_cas --login https://\$HOSTADDRESS\$/cas/login --logout https://\$HOSTADDRESS\$/cas/logout --username neo --password TheOne\n";
+          "    check_cas --login https://example.com/cas/login --username neo --password TheOne\n",
+          "    check_cas --login https://\$HOSTADDRESS\$/cas/login --username neo --password TheOne\n";
 
     exit $errors{UNKNOWN};
 }
