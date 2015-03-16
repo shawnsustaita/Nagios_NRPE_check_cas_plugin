@@ -9,6 +9,9 @@ server via an HTTP(S) POST of credentials (ie username and password).
 check_cas has only been tested in a very limited fashion with Jasig Central
 Authentication Service version 3.5.2.1.
 
+# Debug
+Debug mode will dump the web servers response content.
+
 # Caveats
 The fillout form portion of the code depends on finding the form.  The form
 is found based on its present fields.  WWW::Mechanize's form_with_fields()
@@ -20,6 +23,8 @@ $mech->form_with_fields('username', 'password');
 # Examples
 check_cas --help
 
-check_cas --login https://example.com/cas/login --username neo --password TheOne
+check_cas --login https://example.com/cas/login --username neo --password TheOne --regex Success
 
-check_cas --login https://$HOSTADDRESS$/cas/login --username neo --password TheOne
+check_cas --login https://$HOSTADDRESS$/cas/login --username neo --password TheOne --regex Success
+
+check_cas --login https://$HOSTADDRESS$/cas/login --username neo --password TheOne --regex Success --debug
