@@ -38,6 +38,7 @@ my $username;
 my $password;
 my $regex;
 my $help;
+my $debug;
 my %errors=(OK       => 0,
             WARNING  => 1,
             CRITICAL => 2,
@@ -55,6 +56,7 @@ main();
 sub main {
     # Grab required options.
     my $ret = GetOptions('help'       => \$help,
+                         'debug'      => \$debug,
                          'regex=s'    => \$regex,
                          'login=s'    => \$login,
                          'username=s' => \$username,
@@ -74,11 +76,13 @@ sub main {
     # If login successful, report success.
     if ($mech->content() =~ /$regex/i) {
         print "Authentication OK\n";
+        print $mech->content() if $debug;
         exit $errors{OK};
     }
 
     # Login attempt failed.  Exit failure.
     print "Authentication failure\n";
+    print $mech->content() if $debug;
     exit $errors{WARNING};
 }
 
@@ -112,15 +116,20 @@ sub login {
 
 sub usage {
     # This is how we do it (Montell Jordan hip hop lyric)!  ;)
-    print "usage: $0 <required options>\n\n",
+    print "usage: $0 <options>\n\n",
           "required options:\n",
           "    --login    <login url>\n",
           "    --username <username>\n",
-          "    --password <password>\n\n",
-          "    --regex <success regex>",
+          "    --password <password>\n",
+          "    --regex    <success regex>\n\n",
+          "options:\n",
+          "    --help\n",
+          "    --debug\n\n",
           "examples:\n",
-          "    check_cas --login https://example.com/cas/login --username neo --password TheOne\n",
-          "    check_cas --login https://\$HOSTADDRESS\$/cas/login --username neo --password TheOne\n";
+          "    check_cas --help\n",
+          "    check_cas --login https://example.com/cas/login     --username neo --password TheOne\n",
+          "    check_cas --login https://\$HOSTADDRESS\$/cas/login   --username neo --password TheOne\n",
+          "    check_cas --login https://example.com/cas/login     --username neo --password TheOne --debug\n";
 
     exit $errors{UNKNOWN};
 }
