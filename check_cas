@@ -36,6 +36,7 @@ my $response;
 my $login;
 my $username;
 my $password;
+my $regex;
 my $help;
 my %errors=(OK       => 0,
             WARNING  => 1,
@@ -54,6 +55,7 @@ main();
 sub main {
     # Grab required options.
     my $ret = GetOptions('help'       => \$help,
+                         'regex=s'    => \$regex,
                          'login=s'    => \$login,
                          'username=s' => \$username,
                          'password=s' => \$password,);
@@ -61,6 +63,7 @@ sub main {
     # Verify required options.
     usage() if !$ret;
     usage() if  $help;
+    usage() if !$regex;
     usage() if !$login;
     usage() if !$username;
     usage() if !$password;
@@ -69,7 +72,7 @@ sub main {
     login();
     
     # If login successful, report success.
-    if ($mech->content() =~ /Log In Successful/i) {
+    if ($mech->content() =~ /$regex/i) {
         print "Authentication OK\n";
         exit $errors{OK};
     }
@@ -114,6 +117,7 @@ sub usage {
           "    --login    <login url>\n",
           "    --username <username>\n",
           "    --password <password>\n\n",
+          "    --regex <success regex>",
           "examples:\n",
           "    check_cas --login https://example.com/cas/login --username neo --password TheOne\n",
           "    check_cas --login https://\$HOSTADDRESS\$/cas/login --username neo --password TheOne\n";
